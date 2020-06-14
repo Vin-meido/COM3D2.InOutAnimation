@@ -1749,18 +1749,31 @@ namespace COM3D2.InOutAnimation.Plugin
                 {
                     _transforms[0] = righthand
                       ? maid.body0.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Hand_R).GetComponentsInChildren<Transform>().FirstOrDefault(x => x.name.Contains("R Finger2"))
-                      : maid.body0.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Hand_R).GetComponentsInChildren<Transform>().FirstOrDefault(x => x.name.Contains("L Finger2"));
+                      : maid.body0.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Hand_L).GetComponentsInChildren<Transform>().FirstOrDefault(x => x.name.Contains("L Finger2"));
                 }
                 else
                 {
-                    _transforms[1] = _transforms[0].GetChild(0);
-                    _transforms[2] = _transforms[1].GetChild(0);
-                    _transforms[3] = _transforms[2].GetChild(0);
+                    _transforms[1] = GetFirstNonSCLChild(_transforms[0]);
+                    _transforms[2] = GetFirstNonSCLChild(_transforms[1]);
+                    _transforms[3] = GetFirstNonSCLChild(_transforms[2]);
 
                     positions.Top = _transforms[3].position;
                     positions.Mid = _transforms[2].position;
                     positions.Root = _transforms[1].position;
                 }
+            }
+
+            private Transform GetFirstNonSCLChild(Transform t)
+            {
+                var count = t.childCount;
+                for (var i = 0; i < count; i++)
+                {
+                    var child = t.GetChild(i);
+                    if (!child.name.Contains("_SCL_"))
+                        return child;
+                }
+
+                return t;
             }
         }
 
