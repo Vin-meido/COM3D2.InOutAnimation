@@ -901,7 +901,7 @@ namespace COM3D2.InOutAnimation.Plugin
 
             public void Parse(Mediator med)
             {
-                if (!med.TargetMaid.IsValid())
+                if (!med.TargetMaid.IsValid() || med.TargetMan == null)
                     return;
                 MaidAnmName = med.TargetMaid.body0.LastAnimeFN;
                 ManAnmName = med.manLength > 0
