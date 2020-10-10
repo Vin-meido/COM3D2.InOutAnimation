@@ -170,26 +170,24 @@ namespace COM3D2.InOutAnimation.Plugin
             if (Time.frameCount % 20 == 5)
                 CheckScreenFade();
 
-            if (settings.enablePlugin && mediator.TargetMan.IsValid())
-            {
-                var smr = mediator.TargetMan.GetComponentsInChildren<SkinnedMeshRenderer>().FirstOrDefault(s =>
-                    s.name.Equals("karada", StringComparison.InvariantCultureIgnoreCase));
-                if (smr == null)
-                    return;
-                var mat = smr.materials[1];
-                if (origShader == null)
-                    origShader = mat.shader;
+            if (!settings.enablePlugin || !mediator.TargetMan.IsValid()) return;
+            var smr = mediator.TargetMan.GetComponentsInChildren<SkinnedMeshRenderer>().FirstOrDefault(s =>
+                s.name.Equals("karada", StringComparison.InvariantCultureIgnoreCase));
+            if (smr == null)
+                return;
+            var mat = smr.materials[1];
+            if (origShader == null)
+                origShader = mat.shader;
 
-                if (!current.isPlay || mat.shader.name == "CM3D2/Man" && !settings.OnGUI_HidePenis)
-                {
-                    mat.shader = origShader;
-                }
-                else if (mat.shader.name == origShader.name && settings.OnGUI_HidePenis)
-                {
-                    mat.shader = manShader;
-                    mat.SetFloat("_FloatValue2", 0f);
-                    mat.renderQueue = 3500;
-                }
+            if (!current.isPlay || mat.shader.name == "CM3D2/Man" && !settings.OnGUI_HidePenis)
+            {
+                mat.shader = origShader;
+            }
+            else if (mat.shader.name == origShader.name && settings.OnGUI_HidePenis)
+            {
+                mat.shader = manShader;
+                mat.SetFloat("_FloatValue2", 0f);
+                mat.renderQueue = 3500;
             }
         }
 
@@ -307,20 +305,16 @@ namespace COM3D2.InOutAnimation.Plugin
         {
             if (settings.enablePokoCam && mediator.manLength > 0)
             {
-                if (pokoCam.SetupCam(mediator.TargetMaid, mediator.TargetMan, current.PrimaryMuff))
-                {
-                    var n = (int) current.PrimaryMuff;
-                    if (n > 2) n = 2;
-                    if (flipAnims[n] != null || mediator.muffs[n] != null)
-                    {
-                        pokoCam.Action();
-                        //var rect = settings.PokoCam_CustomPos && settings.PokoCam_Pos.size != Vector2.zero
-                        //    ? settings.PokoCam_Pos
-                        //    : settings.PokoCam_Pos = flipAnims[n].CalcRect(3, current.showParameter);
-                        var rect = FlipAnim.ScreenRect.Get(3, current.showParameter);
-                        pokoCam.Draw(current, rect);
-                    }
-                }
+                if (!pokoCam.SetupCam(mediator.TargetMaid, mediator.TargetMan, current.PrimaryMuff)) return;
+                var n = (int) current.PrimaryMuff;
+                if (n > 2) n = 2;
+                if (flipAnims[n] == null && mediator.muffs[n] == null) return;
+                pokoCam.Action();
+                //var rect = settings.PokoCam_CustomPos && settings.PokoCam_Pos.size != Vector2.zero
+                //    ? settings.PokoCam_Pos
+                //    : settings.PokoCam_Pos = flipAnims[n].CalcRect(3, current.showParameter);
+                var rect = FlipAnim.ScreenRect.Get(3, current.showParameter);
+                pokoCam.Draw(current, rect);
             }
             else
             {
@@ -330,11 +324,9 @@ namespace COM3D2.InOutAnimation.Plugin
 
         private void DrawFaceCam()
         {
-            if (settings.enableFaceCam && faceCam.SetupCam(mediator.TargetMaid))
-            {
-                faceCam.Action();
-                faceCam.Draw(current, FlipAnim.ScreenRect.Get(2, current.showParameter));
-            }
+            if (!settings.enableFaceCam || !faceCam.SetupCam(mediator.TargetMaid)) return;
+            faceCam.Action();
+            faceCam.Draw(current, FlipAnim.ScreenRect.Get(2, current.showParameter));
         }
 
         private void DrawOverlay()
@@ -389,12 +381,10 @@ namespace COM3D2.InOutAnimation.Plugin
             {
                 if (se == null)
                     continue;
-                if (se.clip.name.Contains(SE_CumShot))
-                {
-                    if (current.PlayMode == PlayMode.Multiple)
-                        return true;
-                    count++;
-                }
+                if (!se.clip.name.Contains(SE_CumShot)) continue;
+                if (current.PlayMode == PlayMode.Multiple)
+                    return true;
+                count++;
             }
 
             return count == 1;
@@ -493,14 +483,14 @@ namespace COM3D2.InOutAnimation.Plugin
         private class Mediator : IInitializable
         {
             private readonly CharacterMgr charaMgr;
-            private bool initialized;
-            private Vector3 maidOffset;
             private readonly Maid[] manArray;
-            public int manLength;
 
             internal readonly Muff[] muffs;
-            public bool muffsPrepared;
             internal readonly Poko[] pokos;
+            private bool initialized;
+            private Vector3 maidOffset;
+            public int manLength;
+            public bool muffsPrepared;
             public bool pokosPrepared;
             public bool SwapTargetNPC;
 
@@ -692,9 +682,8 @@ namespace COM3D2.InOutAnimation.Plugin
                 switch (current.PlayMode)
                 {
                     case PlayMode.Self:
-                        foreach (var poko in pokos)
-                            if (poko?.ValidateTargetMuff(muffs[(int) current.PrimaryMuff]) ?? false)
-                                return;
+                        if (pokos.Any(poko => poko?.ValidateTargetMuff(muffs[(int) current.PrimaryMuff]) ?? false))
+                            return;
                         pokosPrepared = false;
                         return;
 
@@ -771,15 +760,13 @@ namespace COM3D2.InOutAnimation.Plugin
                     {
                         if (poko == null || !poko.Validated)
                             continue;
-                        if ((int) poko.TargetMuff == i)
-                        {
-                            var _v = muffs[i].GetInsertRate(current, poko);
-                            value = _v > value ? _v : value;
-                            var n = (int) current.PrimaryMuff == 1 ? 1 : 0;
-                            if ((current.PokoType == PokoType.Finger || current.PokoType == PokoType.Tongue)
-                                && i == n && value > 0.01f)
-                                value = settings.Morpher_Threshold * 0.5f;
-                        }
+                        if ((int) poko.TargetMuff != i) continue;
+                        var _v = muffs[i].GetInsertRate(current, poko);
+                        value = _v > value ? _v : value;
+                        var n = (int) current.PrimaryMuff == 1 ? 1 : 0;
+                        if ((current.PokoType == PokoType.Finger || current.PokoType == PokoType.Tongue)
+                            && i == n && value > 0.01f)
+                            value = settings.Morpher_Threshold * 0.5f;
                     }
 
                     current.rates[i] = Mathf.SmoothStep(current.rates[i], value, settings.Anim_Speed);
@@ -895,6 +882,8 @@ namespace COM3D2.InOutAnimation.Plugin
             private static readonly Regex PatternValidSkillNames =
                 new Regex($@"{string.Join("|", ValidSkillNames)}", RegexOptions.Compiled);
 
+            private readonly State _current;
+
             private readonly Regex patternMuffMouth =
                 new Regex(@"fera|sixnine|self_ir|_kuti|housi", RegexOptions.Compiled);
 
@@ -907,7 +896,6 @@ namespace COM3D2.InOutAnimation.Plugin
                 new Regex(@"_taiki|_in|_ONCE|_once|_shaseigo|_tanetukego|_zeccyougo|_sissin|_\d[^p]",
                     RegexOptions.Compiled);
 
-            private readonly State _current;
             public string MaidAnmName, ManAnmName;
 
 
@@ -1013,19 +1001,14 @@ namespace COM3D2.InOutAnimation.Plugin
 
                 PokoType ParsePokoType()
                 {
-                    switch (MaidAnmName)
+                    return MaidAnmName switch
                     {
-                        case string s when s.Contains(kunni):
-                            return PokoType.Tongue;
-                        case string s when s.Contains(dildo):
-                            return PokoType.Dildo;
-                        case string s when s.Contains(vibe):
-                            return PokoType.Vibe;
-                        case string s when s.Contains(aibu) || s.Contains(onani) || s.Contains(_tubo):
-                            return PokoType.Finger;
-                        default:
-                            return PokoType.TNP;
-                    }
+                        { } s when s.Contains(kunni) => PokoType.Tongue,
+                        { } s when s.Contains(dildo) => PokoType.Dildo,
+                        { } s when s.Contains(vibe) => PokoType.Vibe,
+                        { } s when s.Contains(aibu) || s.Contains(onani) || s.Contains(_tubo) => PokoType.Finger,
+                        _ => PokoType.TNP
+                    };
                 }
 
                 PlayState ParsePlayState()
@@ -1122,8 +1105,9 @@ namespace COM3D2.InOutAnimation.Plugin
                 var cameraMain = GameMain.Instance.MainCamera;
                 Update();
 
-                var start = _top.position;
-                var end = _root.position - (_other.position - _top.position) * 0.5f;
+                var position = _top.position;
+                var start = position;
+                var end = _root.position - (_other.position - position) * 0.5f;
                 var dir = start - end;
                 start -= (start - cameraMain.GetPos()) * settings.Overlay_CameraDistance;
                 end = end - dir * settings.Overlay_LineScale
@@ -1149,8 +1133,9 @@ namespace COM3D2.InOutAnimation.Plugin
                 if (__length < 0.001f)
                     __length = Mathf.Sqrt(tnkLength);
 
-                var dstRoot2top = Distance(pos.Root, _top.position);
-                var muffDepth = Distance(_top.position, _root.position);
+                var position = _top.position;
+                var dstRoot2top = Distance(pos.Root, position);
+                var muffDepth = Distance(position, _root.position);
                 if (tnkLength >= dstRoot2top && muffDepth >= dstTop2mid)
                 {
                     if (poko._lastTime > Time.frameCount)
@@ -1216,10 +1201,11 @@ namespace COM3D2.InOutAnimation.Plugin
                 var cameraMain = GameMain.Instance.MainCamera;
                 Update();
 
-                var start = _top.position;
-                var end = _root.position - (_other.position - _top.position) * 0.5f;
+                var position = _top.position;
+                var start = position;
+                var end = _root.position - (_other.position - position) * 0.5f;
                 var dir = start - end;
-                start = start - (start - cameraMain.GetPos()) * settings.Overlay_CameraDistance;
+                start -= (start - cameraMain.GetPos()) * settings.Overlay_CameraDistance;
                 end = end - dir * settings.Overlay_LineScale
                           - (end - cameraMain.GetPos()) * settings.Overlay_CameraDistance;
 
@@ -1482,11 +1468,7 @@ namespace COM3D2.InOutAnimation.Plugin
 
             public bool ContainsAny(params Vector3[] points)
             {
-                foreach (var p in points)
-                    if (Contains(p))
-                        return true;
-
-                return false;
+                return points.Any(Contains);
             }
 
             ~MuffCollider()
@@ -1539,10 +1521,10 @@ namespace COM3D2.InOutAnimation.Plugin
             private void CheckKeyAvailable(string key)
             {
                 keyAvailableSlot.Clear();
-                if (body != null)
-                    for (var i = 0; i < (int) TBody.SlotID.end; i++)
-                        if (body.goSlot?[i]?.morph is TMorph m && m.hash.ContainsKey(key))
-                            keyAvailableSlot.Add(i);
+                if (body == null) return;
+                for (var i = 0; i < (int) TBody.SlotID.end; i++)
+                    if (body.goSlot?[i]?.morph is TMorph m && m.hash.ContainsKey(key))
+                        keyAvailableSlot.Add(i);
             }
 
             public void SetBlendEx(float value)
@@ -1574,9 +1556,9 @@ namespace COM3D2.InOutAnimation.Plugin
                 if (!settings.Morpher_EnableFix || keyAvailableSlot.Count < 1 || type == MuffType.Back)
                     return;
 
-                if (Time.frameCount % Mathf.RoundToInt(settings.Morpher_Waitframe) == 0)
-                    foreach (var i in keyAvailableSlot)
-                        body.goSlot[i]?.morph?.FixBlendValues();
+                if (Time.frameCount % Mathf.RoundToInt(settings.Morpher_Waitframe) != 0) return;
+                foreach (var i in keyAvailableSlot)
+                    body.goSlot[i]?.morph?.FixBlendValues();
             }
         }
 
@@ -1862,12 +1844,12 @@ namespace COM3D2.InOutAnimation.Plugin
 
             public static ScreenRect ScreenRect = new ScreenRect();
             private static Color alpha = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+            private readonly Stopwatch sw;
 
             public int MaxFrame, CurrentFrame;
 
             public Overlay Overlay;
             private DirectoryInfo srcPath, srcPathEx;
-            private readonly Stopwatch sw;
             private Texture2D[] textures, texturesEx;
 
             public FlipAnim(DirectoryInfo dir)
@@ -1932,12 +1914,10 @@ namespace COM3D2.InOutAnimation.Plugin
 
             private void CheckDirExists()
             {
-                if (!srcPath.Exists)
-                {
-                    srcPath.Create();
-                    if (!srcPathEx.Exists)
-                        srcPathEx.Create();
-                }
+                if (srcPath.Exists) return;
+                srcPath.Create();
+                if (!srcPathEx.Exists)
+                    srcPathEx.Create();
             }
 
             public void Load()
@@ -2050,8 +2030,8 @@ namespace COM3D2.InOutAnimation.Plugin
         public class Overlay
         {
             public const int OverlayLayer = 13;
-            private Color color = new Color(1, 1, 1, 1);
             private readonly FlipAnim flipAnim;
+            private Color color = new Color(1, 1, 1, 1);
             private LineRenderer line;
             private Material material;
             private Shader sprite;
@@ -2177,13 +2157,11 @@ namespace COM3D2.InOutAnimation.Plugin
             {
                 if (width_ < 1 || height_ < 1)
                     return;
-
-                if (renderTexture.width != (int) width_ || renderTexture.height != (int) height_)
-                {
-                    width = (int) width_;
-                    height = (int) height_;
-                    renderTexture = new RenderTexture(width, height, 0);
-                }
+                if (renderTexture.width == (int) width_ && renderTexture.height == (int) height_)
+                    return;
+                width = (int) width_;
+                height = (int) height_;
+                renderTexture = new RenderTexture(width, height, 0);
             }
 
             protected static Vector3 SmoothCamPos(Vector3 from, Vector3 to, float shakewidth, float smoothspeed)
@@ -2240,18 +2218,13 @@ namespace COM3D2.InOutAnimation.Plugin
 
                 cameraPosition = man.body0.trManChinko;
 
-                switch (type)
+                targetPosition = type switch
                 {
-                    case MuffType.Front:
-                        targetPosition = maid.body0.GetBone(vagina);
-                        break;
-                    case MuffType.Back:
-                        targetPosition = maid.body0.GetBone(anal);
-                        break;
-                    case MuffType.Mouth:
-                        targetPosition = maid.body0.GetBone(mouth);
-                        break;
-                }
+                    MuffType.Front => maid.body0.GetBone(vagina),
+                    MuffType.Back => maid.body0.GetBone(anal),
+                    MuffType.Mouth => maid.body0.GetBone(mouth),
+                    _ => targetPosition
+                };
 
                 SetMask(man);
 
@@ -2289,8 +2262,9 @@ namespace COM3D2.InOutAnimation.Plugin
                 var newpos = cameraPosition.position + offset;
                 var pos = SmoothCamPos(camera.transform.localPosition, newpos,
                     settings.PokoCam_ShakeWidth, settings.PokoCam_SmoothSpeed);
+                var up = cameraPosition.up;
                 var rot = Quaternion.LookRotation(targetPosition.position - newpos,
-                    settings.PokoCam_UpsideDown ? -cameraPosition.up : cameraPosition.up);
+                    settings.PokoCam_UpsideDown ? -up : up);
                 camera.transform.SetPositionAndRotation(pos, rot);
                 camera.enabled = true;
             }
@@ -2389,9 +2363,10 @@ namespace COM3D2.InOutAnimation.Plugin
 
             public override void Action()
             {
-                var dir = targetPosition.position - cameraPosition.position;
-                var newpos = cameraPosition.position - dir * settings.FaceCam_Distance;
-                var pos = SmoothCamPos(cameraPosition.position, newpos,
+                var position = cameraPosition.position;
+                var dir = targetPosition.position - position;
+                var newpos = position - dir * settings.FaceCam_Distance;
+                var pos = SmoothCamPos(position, newpos,
                     settings.FaceCam_ShakeWidth, settings.FaceCam_SmoothSpeed);
                 var rot = Quaternion.LookRotation(dir + cameraPosition.up * FaceOffset, cameraPosition.up);
                 camera.transform.SetPositionAndRotation(pos, rot);
@@ -2590,12 +2565,12 @@ namespace COM3D2.InOutAnimation.Plugin
             private static readonly GUILayoutOption[] noOptions = new GUILayoutOption[0];
             private static readonly GUILayoutOption noExpandWidth = ExpandWidth(false);
             private static GUILayoutOption width010, width015, width020, width025;
-            private readonly InOutAnimation plugin;
-            private bool _show;
             private readonly Dictionary<string, Container> containers;
 
             private readonly FlipAnimData[] fAData;
+            private readonly InOutAnimation plugin;
             private readonly ToggleButton pluginEnabler;
+            private bool _show;
             private Vector2 winScrollRect;
 
             public Controller(InOutAnimation plugin)
@@ -2751,23 +2726,22 @@ namespace COM3D2.InOutAnimation.Plugin
 
             private char GetPokoTypeChar(Poko type)
             {
-                switch (type)
+                return type switch
                 {
-                    case TNP _: return PokoNames[0];
-                    case Vibe _: return PokoNames[1];
-                    case Dildo _: return PokoNames[2];
-                    case Finger _: return PokoNames[3];
-                    case Tongue _: return PokoNames[4];
-                }
-
-                return '_';
+                    TNP _ => PokoNames[0],
+                    Vibe _ => PokoNames[1],
+                    Dildo _ => PokoNames[2],
+                    Finger _ => PokoNames[3],
+                    Tongue _ => PokoNames[4],
+                    _ => '_'
+                };
             }
 
             private class Container
             {
                 private const string Down = "▼";
-                private readonly string label;
                 private readonly List<IDrawable> contents;
+                private readonly string label;
                 private bool visible;
 
                 public Container(string label)
@@ -2908,8 +2882,8 @@ namespace COM3D2.InOutAnimation.Plugin
             private class Vec3Slider : IDrawable
             {
                 private readonly Vector3 def;
-                private readonly float min, max;
                 private readonly string label;
+                private readonly float min, max;
                 private readonly Action<Vector3> onChanged;
                 private Vector3 value, recent;
 
@@ -2954,9 +2928,9 @@ namespace COM3D2.InOutAnimation.Plugin
             private class EnableToggle : IDrawable
             {
                 private readonly string label;
-                private bool enable, recent;
                 private readonly Action<bool> onChanged;
                 private readonly IDrawable parts;
+                private bool enable, recent;
 
                 public EnableToggle(string label, bool enable, IDrawable parts, Action<bool> onChanged)
                 {
@@ -2984,9 +2958,9 @@ namespace COM3D2.InOutAnimation.Plugin
             {
                 private const string Change = "変更";
                 private readonly string label;
+                private readonly Action<string> onChanged;
                 private bool Editable;
                 private string key, recent;
-                private readonly Action<string> onChanged;
 
                 public ShapeKeyChange(string label, string key, Action<string> onChanged)
                 {
