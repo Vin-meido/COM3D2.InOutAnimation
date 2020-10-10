@@ -1922,7 +1922,7 @@ namespace COM3D2.InOutAnimation.Plugin
                         return false;
                     var data = File.ReadAllBytes(infos[i].FullName);
 
-                    array[i] = new Texture2D(1, 1, TextureFormat.DXT5, true);
+                    array[i] = new Texture2D(1, 1, TextureFormat.ARGB32, true);
                     if (array[i].LoadImage(data))
                         array[i].Apply();
                 }
