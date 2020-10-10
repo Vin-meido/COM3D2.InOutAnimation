@@ -7,11 +7,12 @@
     <ProjectGuid>{5D2A9424-13DC-415E-A205-070AB9EBD961}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InOutAnimation</RootNamespace>
-    <AssemblyName>InOutAnimation</AssemblyName>
+    <RootNamespace>COM3D2.InOutAnimation.Plugin</RootNamespace>
+    <AssemblyName>COM3D2.InOutAnimation.Plugin</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <LangVersion>9</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
