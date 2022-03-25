@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -431,12 +432,14 @@ namespace COM3D2.InOutAnimation.Plugin
 
         private void CheckScreenFade()
         {
+            /*
             if (screenChildren)
             {
                 if (screenChildren.fade_status != WfScreenChildren.FadeStatus.Null)
                 {
                     if (screenChildren.fade_status != WfScreenChildren.FadeStatus.Wait)
                     {
+                        //UnityEngine.Debug.Log($"Fadeout {screenChildren}");
                         mediator.Initialize();
                         script.Initialize();
                     }
@@ -452,10 +455,11 @@ namespace COM3D2.InOutAnimation.Plugin
                 {
                     screenChildren = children;
                     return;
-                }
+                }*/
 
             if (GameMain.Instance.MainCamera.IsFadeOut())
             {
+                UnityEngine.Debug.Log($"InOutAnimation: Camera fadeout, reinitializing");
                 mediator.Initialize();
                 script.Initialize();
             }
@@ -551,7 +555,8 @@ namespace COM3D2.InOutAnimation.Plugin
                 {
                     var man = charaMgr.GetMan(i);
 
-                    if (man.IsValid() && man.body0.GetChinkoVisible())
+                    //if (man.IsValid() && man.body0.GetChinkoVisible())
+                    if (man.IsValid())
                     {
                         manArray[i] = man;
                         manLength++;
