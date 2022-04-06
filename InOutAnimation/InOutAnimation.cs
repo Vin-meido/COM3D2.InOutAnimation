@@ -25,7 +25,7 @@ namespace COM3D2.InOutAnimation.Plugin
     {
         private const string PluginFilter = "com3d2x64",
             PluginName = "InOutAnimation",
-            PluginVersion = "0.0.0.0";
+            PluginVersion = "1.0.0.1";
 
         private const string PathConfig = @"IOAnim",
             FileNameConfig = @"Settings";
