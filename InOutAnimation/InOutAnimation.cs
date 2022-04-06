@@ -459,7 +459,9 @@ namespace COM3D2.InOutAnimation.Plugin
 
             if (GameMain.Instance.MainCamera.IsFadeOut())
             {
+#if DEBUG
                 UnityEngine.Debug.Log($"InOutAnimation: Camera fadeout, reinitializing");
+#endif
                 mediator.Initialize();
                 script.Initialize();
             }
@@ -480,9 +482,9 @@ namespace COM3D2.InOutAnimation.Plugin
             DestroyPluginObjects();
         }
 
-        #endregion
+#endregion
 
-        #region Classes
+#region Classes
 
         private class Mediator : IInitializable
         {
@@ -1059,7 +1061,7 @@ namespace COM3D2.InOutAnimation.Plugin
         }
 
 
-        #region Muffs
+#region Muffs
 
         private class Front : Muff
         {
@@ -1567,10 +1569,10 @@ namespace COM3D2.InOutAnimation.Plugin
             }
         }
 
-        #endregion
+#endregion
 
 
-        #region Pokos
+#region Pokos
 
         private class TNP : Poko
         {
@@ -1832,7 +1834,7 @@ namespace COM3D2.InOutAnimation.Plugin
             }
         }
 
-        #endregion
+#endregion
 
         public struct Positions
         {
@@ -2131,7 +2133,7 @@ namespace COM3D2.InOutAnimation.Plugin
         }
 
 
-        #region Cams
+#region Cams
 
         private abstract class IOCam : IInitializable
         {
@@ -2379,7 +2381,7 @@ namespace COM3D2.InOutAnimation.Plugin
             }
         }
 
-        #endregion
+#endregion
 
 
         public class PokoTrail
@@ -3105,7 +3107,7 @@ namespace COM3D2.InOutAnimation.Plugin
             }
         }
 
-        #endregion
+#endregion
     }
 
 
@@ -3124,7 +3126,7 @@ namespace COM3D2.InOutAnimation.Plugin
         }
     }
 
-    #region enums
+#region enums
 
     internal enum MuffNum
     {
@@ -3178,5 +3180,5 @@ namespace COM3D2.InOutAnimation.Plugin
         Tongue
     }
 
-    #endregion
+#endregion
 }
