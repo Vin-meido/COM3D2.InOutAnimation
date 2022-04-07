@@ -15,6 +15,7 @@ using UnityInjector;
 using UnityInjector.Attributes;
 using static UnityEngine.GUILayout;
 
+using COM3D2.InOutAnimation.Plugin.Extensions;
 
 namespace COM3D2.InOutAnimation.Plugin
 {
@@ -1094,13 +1095,13 @@ namespace COM3D2.InOutAnimation.Plugin
                 if (!_root)
                     _root = body.Spine
                         ? body.Spine
-                        : body.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Spine0);
+                        : body.GetIKBone_Spine0();
+                
 
                 if (!_mid)
                     _mid = body.Pelvis
                         ? body.Pelvis
-                        : body.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Pelvis);
-
+                        : body.GetIKBone_Pelvis();
                 if (!_top)
                     _top = body.GetBone(VaginaBoneName);
                 if (!_other)
@@ -1190,12 +1191,12 @@ namespace COM3D2.InOutAnimation.Plugin
                 if (!_root)
                     _root = body.Spine
                         ? body.Spine
-                        : body.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Spine0);
+                        : body.GetIKBone_Spine0();
 
                 if (!_mid)
                     _mid = body.Pelvis
                         ? body.Pelvis
-                        : body.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Pelvis);
+                        : body.GetIKBone_Pelvis();
 
                 if (!_top)
                     _top = body.GetBone(AnalBoneName);
@@ -1757,9 +1758,9 @@ namespace COM3D2.InOutAnimation.Plugin
                 if (_transforms[0] == null)
                 {
                     _transforms[0] = righthand
-                        ? maid.body0.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Hand_R)
+                        ? maid.body0.GetIKBone_Hand_R()
                             .GetComponentsInChildren<Transform>().FirstOrDefault(x => x.name.Contains("R Finger2"))
-                        : maid.body0.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Hand_L)
+                        : maid.body0.GetIKBone_Hand_L()
                             .GetComponentsInChildren<Transform>().FirstOrDefault(x => x.name.Contains("L Finger2"));
                 }
                 else
@@ -2328,7 +2329,7 @@ namespace COM3D2.InOutAnimation.Plugin
                     camera.enabled = false;
                 }
 
-                targetPosition = maid.IKCtrl.GetIKBone(FullBodyIKCtrl.IKBoneType.Head);
+                targetPosition = maid.GetIKBone_Head();
                 cameraPosition = GetCameraPos(maid);
                 bgObject = GameMain.Instance.BgMgr.current_bg_object;
                 var mask = (1 << Overlay.OverlayLayer) + (1 << ManLayer) + (1 << bgObject.layer);
