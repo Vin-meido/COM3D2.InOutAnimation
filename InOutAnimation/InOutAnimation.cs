@@ -26,8 +26,11 @@ namespace COM3D2.InOutAnimation.Plugin
     {
         private const string PluginFilter = "com3d2x64",
             PluginName = "InOutAnimation",
-            PluginVersion = "1.0.0.1";
-
+#if !COM3D25
+            PluginVersion = "1.0.0.2";
+#else
+            PluginVersion = "1.0.0.2-CR";
+#endif 
         private const string PathConfig = @"IOAnim",
             FileNameConfig = @"Settings";
 
@@ -47,7 +50,7 @@ namespace COM3D2.InOutAnimation.Plugin
             void Initialize();
         }
 
-        #region Variables
+#region Variables
 
         private readonly Version pluginGameVer = new Version("1.32.0");
         private Version currentGameVer;
@@ -79,9 +82,9 @@ namespace COM3D2.InOutAnimation.Plugin
         private MessageBox _msgbox;
         private static bool _debug;
 
-        #endregion
+#endregion
 
-        #region MonoBehavior
+#region MonoBehavior
 
         private void Awake()
         {
@@ -257,9 +260,9 @@ namespace COM3D2.InOutAnimation.Plugin
                 );
         }
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
         private void Initialize()
         {
