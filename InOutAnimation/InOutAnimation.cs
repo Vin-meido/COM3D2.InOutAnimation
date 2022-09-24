@@ -901,7 +901,7 @@ namespace COM3D2.InOutAnimation.Plugin
             private readonly Regex patternMultiple = new Regex(@"(ran|muri|kousoku).*\dp", RegexOptions.Compiled);
             private readonly Regex patternNoneBreak = new Regex(@"name|suri|koki|tama|sumata", RegexOptions.Compiled);
             private readonly Regex patternNoneOutside = new Regex(@"^.*(_soto|_kao).*$", RegexOptions.Compiled);
-            private readonly Regex patternPlaying = new Regex(@"^.*_\d([ab]0[12])?_|_gr|_momi", RegexOptions.Compiled);
+            private readonly Regex patternPlaying = new Regex(@"^.*_\d([ab]0[12])?(s\d)?_|_gr|_momi", RegexOptions.Compiled);
 
             private readonly Regex Separator =
                 new Regex(@"_taiki|_in|_ONCE|_once|_shaseigo|_tanetukego|_zeccyougo|_sissin|_\d[^p]",
