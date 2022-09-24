@@ -1533,8 +1533,10 @@ namespace COM3D2.InOutAnimation.Plugin
             {
                 keyAvailableSlot.Clear();
                 if (body == null) return;
+
+
                 for (var i = 0; i < (int) TBody.SlotID.end; i++)
-                    if (body.goSlot?[i]?.morph is TMorph m && m.hash.ContainsKey(key))
+                    if (body.GetGoSlot(i).morph is TMorph m && m.hash.ContainsKey(key))
                         keyAvailableSlot.Add(i);
             }
 
@@ -1550,9 +1552,9 @@ namespace COM3D2.InOutAnimation.Plugin
                 );
 
                 foreach (var slot in keyAvailableSlot)
-                    if (body.goSlot[slot]?.morph?.hash[Key] is int idx)
+                    if (body.GetGoSlot(slot)?.morph?.hash[Key] is int idx)
                     {
-                        body.goSlot[slot].morph.SetBlendValues(idx, result);
+                        body.GetGoSlot(slot).morph.SetBlendValues(idx, result);
                         lastValue = result;
                     }
                     else
@@ -1569,7 +1571,7 @@ namespace COM3D2.InOutAnimation.Plugin
 
                 if (Time.frameCount % Mathf.RoundToInt(settings.Morpher_Waitframe) != 0) return;
                 foreach (var i in keyAvailableSlot)
-                    body.goSlot[i]?.morph?.FixBlendValues();
+                    body.GetGoSlot(i)?.morph?.FixBlendValues();
             }
         }
 
@@ -2344,7 +2346,7 @@ namespace COM3D2.InOutAnimation.Plugin
 
             private Transform GetCameraPos(Maid maid)
             {
-                var head = maid.body0.goSlot[(int) TBody.SlotID.head].obj_tr;
+                var head = maid.body0.GetGoSlot((int) TBody.SlotID.head).obj_tr;
                 for (var j = 0; j < head.childCount; j++)
                 {
                     var h = head.GetChild(j);
