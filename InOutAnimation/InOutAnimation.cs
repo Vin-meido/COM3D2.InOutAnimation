@@ -1918,7 +1918,7 @@ namespace COM3D2.InOutAnimation.Plugin
                     var data = File.ReadAllBytes(infos[i].FullName);
 
                     array[i] = new Texture2D(1, 1, TextureFormat.ARGB32, true);
-                    if (array[i].LoadImage(data))
+                    if (array[i].LoadImageCompat(data))
                         array[i].Apply();
                 }
 

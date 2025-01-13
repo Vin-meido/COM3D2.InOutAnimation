@@ -72,6 +72,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompatTexture2DExtensions.cs" />
     <Compile Include="CompatTBodyGoSlotExtensions.cs" />
     <Compile Include="InOutAnimation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
