@@ -172,7 +172,9 @@ namespace COM3D2.InOutAnimation.Plugin
             if (Time.frameCount % 20 == 5)
                 CheckScreenFade();
 
-            if (!settings.enablePlugin || !mediator.TargetMan.IsValid()) return;
+            if(!settings.enablePlugin || mediator.TargetMan is null || !mediator.TargetMan.IsValid())
+                return;
+
             var smr = mediator.TargetMan.GetComponentsInChildren<SkinnedMeshRenderer>().FirstOrDefault(s =>
                 s.name.Equals("karada", StringComparison.InvariantCultureIgnoreCase));
             if (smr == null)
@@ -244,10 +246,14 @@ namespace COM3D2.InOutAnimation.Plugin
                         $"num:{current.MuffNum.ToString()}\n" +
                         $"stat:{current.PlayState}\n" +
                         $"play:{current.isPlay} onani:{current.isOnani}\n" +
-                        $"pokotype:{current.PokoType} \n" +
-                        $"poko[0]:{mediator.pokos[0]?.TargetMuff}\n" +
-                        $"poko[1]:{mediator.pokos[1]?.TargetMuff}\n" +
-                        $"poko[2]:{mediator.pokos[2]?.TargetMuff}\n" +
+                        $"pokotype:{current.PokoType} ({(mediator.pokos[0] as Finger)?.maid}) \n" +
+                        $"poko[0]:{mediator.pokos[0]?.GetType().Name} {mediator.pokos[0]?.TargetMuff}\n" +
+                        $"poko[1]:{mediator.pokos[1]?.GetType().Name} {mediator.pokos[1]?.TargetMuff}\n" +
+                        $"poko[2]:{mediator.pokos[2]?.GetType().Name} {mediator.pokos[2]?.TargetMuff}\n" +
+                        $"poko[3]:{mediator.pokos[3]?.GetType().Name} {mediator.pokos[3]?.TargetMuff}\n" +
+                        $"poko[4]:{mediator.pokos[4]?.GetType().Name} {mediator.pokos[4]?.TargetMuff}\n" +
+                        $"poko[5]:{mediator.pokos[5]?.GetType().Name} {mediator.pokos[5]?.TargetMuff}\n" +
+                        $"poko[6]:{mediator.pokos[6]?.GetType().Name} {mediator.pokos[6]?.TargetMuff}\n" +
                         $"skillSel:{current.showSkillSelect} " +
                         $"paramVew:{current.showParameter} " +
                         $"confPanel:{current.showConfigPanel}" +
@@ -553,22 +559,29 @@ namespace COM3D2.InOutAnimation.Plugin
 
                 TargetMaid = maid;
 
-                manLength = 0;
-                for (var i = 0; i < manArray.Length; i++)
+                if (current.PlayMode == PlayMode.Yuri)
                 {
-                    var man = charaMgr.GetMan(i);
-
-                    //if (man.IsValid() && man.body0.GetChinkoVisible())
-                    if (man.IsValid())
-                    {
-                        manArray[i] = man;
-                        manLength++;
-                    }
+                    TargetMan = charaMgr.GetMaid(1);
                 }
+                else
+                {
+                    manLength = 0;
+                    for (var i = 0; i < manArray.Length; i++)
+                    {
+                        var man = charaMgr.GetMan(i);
 
-                TargetMan = current.PlayMode == PlayMode.Swap && manArray[1] != null && !SwapTargetNPC
-                    ? manArray[1]
-                    : manArray[0];
+                        //if (man.IsValid() && man.body0.GetChinkoVisible())
+                        if (man.IsValid())
+                        {
+                            manArray[i] = man;
+                            manLength++;
+                        }
+                    }
+
+                    TargetMan = current.PlayMode == PlayMode.Swap && manArray[1] != null && !SwapTargetNPC
+                        ? manArray[1]
+                        : manArray[0];
+                }
 
                 initialized = false;
             }
@@ -617,6 +630,7 @@ namespace COM3D2.InOutAnimation.Plugin
                     case PlayMode.Normal:
                     case PlayMode.Swap:
                     case PlayMode.Harem:
+                    case PlayMode.Yuri:
                         if (TargetMan == null)
                         {
                             pokosPrepared = false;
@@ -698,6 +712,7 @@ namespace COM3D2.InOutAnimation.Plugin
                     case PlayMode.Normal:
                     case PlayMode.Swap:
                     case PlayMode.Harem:
+                    case PlayMode.Yuri:
                         var n = (int) current.PrimaryMuff == 1 ? 1 : 0;
                         switch (current.PokoType)
                         {
@@ -857,6 +872,8 @@ namespace COM3D2.InOutAnimation.Plugin
             private const string C_ = "C_", A_ = "A_", A = "A";
             private const string _2ana = "2ana", _3ana = "3ana";
 
+            private const string Yuri = "x_yuri_";
+
             private const string kunni = "kunni",
                 dildo = "dildo",
                 vibe = "vibe",
@@ -884,7 +901,8 @@ namespace COM3D2.InOutAnimation.Plugin
                 "ekiben", "turusi", "matuba", "syumoku", "mzi", "kakae", "tekoki", "tekoona", "fera", "sixnine",
                 "self_ir", "housi",
                 "onani", "paizuri", "aibu", "kunni", "mp_arai", "arai2", "kousoku", "vibe", "mokuba", "harituke",
-                "ran\\dp", "muri.*\\dp", ".*\\dp_", "sex"
+                "ran\\dp", "muri.*\\dp", ".*\\dp_", "sex",
+                "aibu2"
             };
 
             private static readonly Regex PatternValidSkillNames =
@@ -898,7 +916,7 @@ namespace COM3D2.InOutAnimation.Plugin
             private readonly Regex patternMultiple = new Regex(@"(ran|muri|kousoku).*\dp", RegexOptions.Compiled);
             private readonly Regex patternNoneBreak = new Regex(@"name|suri|koki|tama|sumata", RegexOptions.Compiled);
             private readonly Regex patternNoneOutside = new Regex(@"^.*(_soto|_kao).*$", RegexOptions.Compiled);
-            private readonly Regex patternPlaying = new Regex(@"^.*_\d([ab]0[12])?(s\d)?_|_gr|_momi", RegexOptions.Compiled);
+            private readonly Regex patternPlaying = new Regex(@"^.*_\d([ab]0[12])?(s\d)?_|_gr|_momi|_oku", RegexOptions.Compiled);
 
             private readonly Regex Separator =
                 new Regex(@"_taiki|_in|_ONCE|_once|_shaseigo|_tanetukego|_zeccyougo|_sissin|_\d[^p]",
@@ -920,12 +938,13 @@ namespace COM3D2.InOutAnimation.Plugin
 
             public void Parse(Mediator med)
             {
-                if (!med.TargetMaid.IsValid() || med.TargetMan == null)
+                MaidAnmName = med.TargetMaid?.body0.LastAnimeFN ?? "";
+                ManAnmName = med.TargetMan?.body0.LastAnimeFN ?? "";
+
+                //if (!med.TargetMaid.IsValid() || med.TargetMan == null)
+                //    return;
+                if (!med.TargetMaid.IsValid())
                     return;
-                MaidAnmName = med.TargetMaid.body0.LastAnimeFN;
-                ManAnmName = med.manLength > 0
-                    ? med.TargetMan.body0.LastAnimeFN
-                    : "";
 
                 if (!PatternValidSkillNames.IsMatch(MaidAnmName))
                 {
@@ -977,6 +996,10 @@ namespace COM3D2.InOutAnimation.Plugin
                 {
                     if (MaidAnmName.Contains(C_) || ManAnmName.Contains(C_))
                         return PlayMode.Harem;
+
+                    if (MaidAnmName.Contains(Yuri))
+                        return PlayMode.Yuri;
+
                     if (patternMultiple.IsMatch(_current.CurrentSkill))
                         return PlayMode.Multiple;
 
@@ -3152,7 +3175,8 @@ namespace COM3D2.InOutAnimation.Plugin
         Multiple,
         Swap,
         Harem,
-        Self
+        Self,
+        Yuri
     }
 
     internal enum sPosition
