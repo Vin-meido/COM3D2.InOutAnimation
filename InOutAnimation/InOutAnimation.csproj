@@ -9,8 +9,6 @@
     <AssemblyTitle>InOutAnimation</AssemblyTitle>
     <Product>InOutAnimation</Product>
     <Copyright>Copyright ©  2019</Copyright>
-    <AssemblyVersion>1.0.0.4</AssemblyVersion>
-    <FileVersion>1.0.0.4</FileVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -23,17 +21,22 @@
     <LangVersion>8</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="COM3D2.GameLibs" Version="2.21.0-r.0" />
+    <PackageReference Include="COM3D2.GameLibs" Version="2.21.0-r.0">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ExIni">
       <HintPath>..\lib\ExIni.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\lib\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityInjector">
       <HintPath>..\lib\UnityInjector.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
 </Project>
